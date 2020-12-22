@@ -62,15 +62,16 @@ Medical = pfizer (PFE)
 
 
 ## **TraderbotAdvisor** 
+
 ![Fintech_project_2](Images/FAB-robo-072916-adobe.png)
  
-1) Which are your available assets? How much can you afford to invest?
-2) Which is your goal?
-3) Which is your investment timeline?
-4) Do you want to re-invest profits or do you want to withdraw profits?
-5) Which is your profit expectation?
-6) Which kind of investor are you: do you prefer big wins or small losses?
-7) What is the media influence?
+● Which are your available assets? How much can you afford to invest?
+● Which is your goal?
+● Which is your investment timeline?
+● Do you want to re-invest profits or do you want to withdraw profits?
+● Which is your profit expectation?
+● Which kind of investor are you: do you prefer big wins or small losses?
+● What is the media influence?
 
 
 #### **Questions to be solved by the end of the project:**
