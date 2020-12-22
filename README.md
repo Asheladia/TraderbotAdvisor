@@ -1,6 +1,6 @@
 # **TraderbotAdviser**
 
-#### Contributors : Alpa Sheladia, Brian Withrow, Lee R. Redfearn, Mischelle Massey, Nathan Bratz
+### **Contributors : Alpa Sheladia, Brian Withrow, Lee R. Redfearn, Mischelle Massey, Nathan Bratz**
                                            
 
 
@@ -33,6 +33,8 @@ Medical = pfizer (PFE)
 
   IEX Finance: https://iexcloud.io/
   News API: https://newsapi.org/
+  Alpha Vantage: https://www.alphavantage.co/
+  Yahoo Finance: https://finance.yahoo.com/quote/API/
 
 
 #### **Possible New Metrics/Tools to Use:**
