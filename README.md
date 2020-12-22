@@ -14,7 +14,7 @@ you've come to the right place, we'll have your back using vix score volitality 
 
 Focusing on some of the most volatile industries as below. 
 
-
+![Fintech_project_2](Images/Americanairline.png)
 ![Fintech_project_2](Images/Apple.png)
 ![Fintech_project_2](Images/xom.png)
 ![Fintech_project_2](Images/BTC.png) 
