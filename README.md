@@ -1,4 +1,4 @@
-# --TraderbotAdviser--
+## **TraderbotAdviser**
 
 #### Contributors : Alpa Sheladia, Brian Withrow, Lee R. Redfearn, Mischelle Massey, Nathan Bratz
                                            
