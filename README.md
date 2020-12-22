@@ -66,19 +66,28 @@ Medical = pfizer (PFE)
 ![Fintech_project_2](Images/FAB-robo-072916-adobe.png)
  
 ● Which are your available assets? How much can you afford to invest?
+
 ● Which is your goal?
+
 ● Which is your investment timeline?
+
 ● Do you want to re-invest profits or do you want to withdraw profits?
+
 ● Which is your profit expectation?
+
 ● Which kind of investor are you: do you prefer big wins or small losses?
+
 ● What is the media influence?
 
 
 #### **Questions to be solved by the end of the project:**
 
 ● How much the news media has contributed in the stock market volotality over past two years?
+
 ● Is this a supervised or unsupervised learning task? what are data features and what is the target variable? If unsupervised, what are the data features and what do we hope to find?
+
 ● What variables our roboAdvisor considers while advising on stock market?
+
 ● How did the Machine learning played role in it?
 
 ![Fintech_project_2](Images/Stock_Cyborg-Dabbing.png)
