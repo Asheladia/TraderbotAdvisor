@@ -14,8 +14,10 @@ you've come to the right place, we'll have your back using vix score volitality 
 
 Focusing on some of the most volatile industries as below. 
 
-![Fintech_project_2](Images/amairlines-2.png,s=100), ![Fintech_project_2](Images/Apple.pngs=100)
-![Fintech_project_2](Images/xom.pngs=100), ![Fintech_project_2](Images/BTC.pngs=100) 
+![Fintech_project_2](Images/amairlines-2.png,size=100)
+![Fintech_project_2](Images/Apple.png)
+![Fintech_project_2](Images/xom.pngs=100)
+![Fintech_project_2](Images/BTC.pngs=100) 
 ![Fintech_project_2](Images/pfe.pngs=100)
 
 
