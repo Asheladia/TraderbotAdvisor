@@ -23,7 +23,7 @@ Focusing on some of the most volatile industries as below.
 
 #### **Indutries:**
 
-Airline = American Airline (AA)
+Airline = American Airline (AAL)
 Tech = Apple (AAPL)
 Oil & Gas = Exxon (XOM)
 Crypto = Bitcoin (BTC)  
