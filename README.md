@@ -4,13 +4,13 @@
                                            
 
 
-Using NLP / Logistic Regression to Predict Future Stock Movement.Program that allows a user to choose a company from the S&P 500 and run a logistic regression model to predict the price movement of this company's stock on the next trading move based on current sentiment (Vader) of Reuters news articles related to this company.
+The purpose of this project is to predict future stock movement using a Logistical Regression Model which allows the User to choose a company from the S&P 500 to predict the price movement of a company's stock on the next trading move based on current sentiment (Vader) of Google news articles related to such company.
 
 
 ![Fintech_project_2](Images/Robo-Advisors.png)
 
-Looking for executing orders using automated pre-programmed trading instructions accounting for variables such as time, price, sentiment from news media, and volume?
-you've come to the right place, we'll have your back using vix score volitality measurement to decide whether to buy, sell or hold on to your investment in various industries. in this project, we'll be comparing prices from latest quaters of following corporation to build algorethmic robo advisor that can guide you with your investment insequrities. it'll research new media and past stock pattern to come up with the best decision for your stock invesment so you don't have to spand time following market. our bot will be equip for trading attempts to leverage the speed and computational resources of computers relative to human traders. According to Walstreet jornal article, A study in 2019 showed that around 92% of trading in the Forex market was performed by trading algorithms rather than humans.
+Looking for executable orders using automated pre-programmed trading instructions accounting for variables such as time, price, sentiment from news media, and volume?
+You've come to the right place, we'll have your back using vix score volitality measurement to decide whether to buy, sell or hold on to your investment in various industries. In this project, we'll be comparing prices from latest quaters of following corporation to build algorethmic robo advisor that can guide you with your investment insequrities. it'll research new media and past stock pattern to come up with the best decision for your stock invesment so you don't have to spand time following market. our bot will be equip for trading attempts to leverage the speed and computational resources of computers relative to human traders. According to Walstreet jornal article, A study in 2019 showed that around 92% of trading in the Forex market was performed by trading algorithms rather than humans.
 
 Focusing on some of the most volatile industries as below. 
 
