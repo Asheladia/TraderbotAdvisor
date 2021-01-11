@@ -10,9 +10,10 @@ import time                                                               # used
 from sqlalchemy import create_engine                                      # used to pull data from sql server
 import quandl                                                             # for using hte Quandl api
 from GoogleNews import GoogleNews                                         # for using Google API
+from newspaper import Article                                             # for extracting information from hyperlinks
 import re                                                                 # for using regular expression
 from nltk.tokenize import sent_tokenize                                   # for tokenizing words
-
+import yfinance as yf                                                     # for working with yahoo finance api
 load_dotenv()                                                             # Load .env enviroment variables
 appkey=os.getenv("ALPHA_KEY")                                             # storing API key for AL
 quandl_key=os.getenv("QUANDL_API_KEY")                                    # Getting the api for quandl requests
@@ -95,9 +96,10 @@ def mapkey(string):
 ####################################     DATA CLEAN FUNCTION       #########################################  
 def data_clean(df):
     """Cleans a data set and removes all None/NA entries"""
-    if( sum(df.isnull().sum())>0 ):     #checks if there are any missing values
-        df.fillna(method='ffill')       #fills entries using forward fill
-    return(df)                          #returns the DataFrame
+    if( sum(df.isnull().sum())>0 ):               # checks if there are any missing values
+        df.fillna(method='ffill')                 # fills entries using forward fill
+        df.dropna(axis=0,inplace=True)            # gets rid of rows win NA values
+    return(df)                                    # returns the DataFrame
         
     
     
@@ -112,21 +114,10 @@ def VIX_update():
 ####################################     GET SP500 FUNCTION       #########################################
 def sp500_update():
     """Function pulls in S&P500 data from Quandl API"""                                                                           # Description
-    result=quandl.get("BCIW/_INX", authtoken=quandl_key,collapse='daily',start_date="2000-01-01", end_date=datetime.now().strftime("%Y-%m-%d")) # request pulling S&P500 data
-    result.to_csv('SP500_DAILY.csv')                                                                                              # saves S&P500 data to csv file
+    spx = yf.Ticker("^GSPC")
+    df = spx.history(period="max")
+    df.to_csv("Yahoo_Finance_Data/SP500_DAILY.csv")                                                                               # saves S&P500 data to csv file
     
-
-####################################       GET BETA         #########################################  
-def get_beta(stock_df,period):
-    """Computes P-Day rolling beta of given stock data, where period=P. There will be NAs but will remove them from collective DataFrame"""
-    sp500_df=pd.read_csv("SP500_DAILY.csv",index_col='Date',parse_dates=True,infer_datetime_format=True,usecols=["Date","Close"]) # getting S&P500 data w/ specific columns
-    sp500_df.loc[stock_df.index[0]:stock_df.index[-1]]                                                                            # slicing S&P500 DataFrame
-    daily_returns_stock_df=stock_df.pct_change()                                                                                  # computing daily returns for stock
-    daily_returns_sp500_df=sp500_df.pct_change()                                                                                  # computing daily returns for S&P500
-    rolling_covariance = daily_returns_stock_df.rolling(window=period).cov(daily_returns_sp500_df)                                # computing rolling covariance w/ S&P500
-    rolling_variance = daily_returns_sp500_df.rolling(window=period).var()                                                        # computing variance of S&P500
-    rolling_beta = rolling_covariance / rolling_variance                                                                          # Computing beta-average values
-    return rolling_beta                                                                                                           # returning rolling_beta DataFrame
 
 
 ####################################       CLEAN TEXT         #########################################
@@ -297,7 +288,7 @@ class StockScrub:
     
     
 ####################################     DATA COMPILE       #########################################                
-    def data_compile(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d")):
+    def data_compile(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d"),beta_period=15):
         """Takes a given ticker symbol and combines data from AlphaVantage, Quandl and sentiment analysis"""
         start=datetime.strptime(start,"%Y-%m-%d")                                                                             # converting start time to datetime
         end=datetime.strptime(end,"%Y-%m-%d")                                                                                 # converting end time to datetime
@@ -305,10 +296,37 @@ class StockScrub:
         AV_df=pd.read_csv(file_path,index_col='date',parse_dates=True,infer_datetime_format=True)                             # reading data from file path
         VIX_df=pd.read_csv('Quandl_VIX_Data/VIX_DAILY.csv',index_col='Trade Date',parse_dates=True,infer_datetime_format=True,usecols=['Close','Trade Date'])
         VIX_df.index.name='date'                                                                                              # adjusting index column name
-        VIX_df.columns=['VIX close']                                                                                          # adjusting DataFrame column name
-        combined_df=pd.concat([AV_df.loc[start:end],VIX_df.loc[start:end]],axis=1,join="inner")                               # joining DataFrames on common index
+        VIX_df.columns=['VIX']                                                                                                # adjusting DataFrame column name
+        beta_df=self.get_beta(start=start,end=end,period=beta_period)                                                         # collecting average beta values
+        combined_df=pd.concat([AV_df.loc[start:end],VIX_df.loc[start:end],beta_df],axis=1,join="inner")                       # joining DataFrames on common index
+        combined_df=data_clean(combined_df)                                                                                   # combining all DataFrames
         return combined_df     
   
+
+ ####################################       GET BETA         #########################################  
+    def get_beta(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d"),period=15):
+        """Computes P-Day rolling beta of given stock data, where period=P. There will be NAs but will remove them from collective DataFrame"""
+        file_path=f"AlphaVantage_Asset_Data/AV_{self.ticker[0]}_data.csv"                                                     # Defining the file path
+        stock_df=pd.read_csv(file_path,index_col='date',parse_dates=True,infer_datetime_format=True)                             # reading data from file path
+        stock_df=stock_df.loc[start:end]                                                                                                # slicing stock data
+        sp500_df=pd.read_csv("Yahoo_Finance_Data/SP500_DAILY.csv",index_col='Date',parse_dates=True,infer_datetime_format=True,usecols=["Date","Close"]) # getting S&P500 data
+        sp500_df=data_clean(sp500_df.loc[start:end])                                                                                  # slicing S&P500 DataFrame
+        daily_returns_stock_df=stock_df.pct_change()                                                                                  # computing daily returns for stock
+        daily_returns_sp500_df=sp500_df.pct_change()                                                                                  # computing daily returns for S&P500
+        rolling_covariance = daily_returns_stock_df['close'].rolling(window=period).cov(daily_returns_sp500_df)                                # computing rolling covariance w/ S&P500
+        rolling_variance = daily_returns_sp500_df.rolling(window=period).var()                                                        # computing variance of S&P500
+        rolling_beta = rolling_covariance / rolling_variance                                                                          # Computing beta-average values
+        rolling_beta.columns=['beta']                                                                                                 # changing column name
+        return rolling_beta                                                                                                           # returning rolling_beta DataFrame
+
+
+
+
+
+
+
+
+
 
  ####################################     GET INDICATORS       ######################################### 
     def get_indicators(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d")):
