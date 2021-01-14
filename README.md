@@ -65,11 +65,17 @@ results were compiled into a DataFrame object and stored for further use
 ●Cross Validation (Better estimation of test error)
 
 ●Use nltk and tensorflow for neural networks on natural language processing
+
 ●Graph performance results using multiple layers, ​network types​ and ​learning rates
+
 ● we used Googlenews API to pull articles
+
 ● we used YahooFinance to pull stock data and articles
+
 ● we used training a 2D-convolutional neural network
+
 ● we used Loughran-McDonald Master Dictionary to get sentiments 
+
 ● We made new class stockscurb to collect, organized data for the assets.
 
 
