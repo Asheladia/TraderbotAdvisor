@@ -4,13 +4,13 @@
                                            
 
 
-The purpose of this project is to predict future stock movement using convolutional neural network Model which allows the User to choose a company from the S&P 500 to predict the price movement of a company's stock on the next trading move based on current sentiment (Vader) from Google news articles related to such company.
+The purpose of this project is to investigate the effect of several variables on the the prediction of the stock prices emphasising ananlysis of coreleation between stock price and the news media. Moreover, prediction of future stock movement using convolutional neural network Model which allows the user to choose a company from the S&P 500 to predict the price movement of a company's stock on the next trading move based on current sentiment (Vader) from Google news articles related to such company.
 
 
 ![Fintech_project_2](Images/Robo-Advisors.png)
 
-Looking for executable orders using automated pre-programmed trading instructions accounting for variables such as time, price, sentiment from news media, and volume.
-You've come to the right place, we'll have your back using vix score volitality measurement to decide whether to buy, sell or hold on to your investment in various industries. In this project, we'll be comparing prices from latest quaters of following corporation to build algorethmic robo advisor that can guide you with your investment insequrities. it'll research new media and past stock pattern to come up with the best decision for your stock invesment so you don't have to spand time following market. our bot will be equip for trading attempts to leverage the speed and computational resources of computers relative to human traders. According to Walstreet jornal article, A study in 2019 showed that around 92% of trading in the Forex market was performed by trading algorithms rather than humans.
+Looking for executable orders using automated pre-programmed trading instructions accounting for variables such as VIX, Beta, price, sentiment from news media, and volume.
+You've come to the right place, we'll have your back using vix score volitality measurement to decide whether to buy, sell or hold on to your investment in various industries. In this project, we'll be comparing prices of past three to four years of following corporation to build algorethmic robo advisor that can guide you with your investment insequrities. it'll research new media and past stock pattern to come up with the best decision for your stock invesment so you don't have to spand time following market. our bot will be equip for trading attempts to leverage the speed and computational resources of computers relative to human traders. According to Walstreet jornal article, A study in 2019 showed that around 92% of trading in the Forex market was performed by trading algorithms rather than humans.
 
 Focusing on some of the most volatile industries as below. 
 
@@ -34,12 +34,28 @@ media = Zoom(ZM)
 
 #### NOTE: You must have active keys from the following APIs to run this program:
 
+   Quandl API : https://www.quandl.com/tools/api
   IEX Finance: https://iexcloud.io/
   News API: https://newsapi.org/
   Alpha Vantage: https://www.alphavantage.co/
   Yahoo Finance: https://finance.yahoo.com/quote/API/
   google News :https://newsapi.org/s/google-news-api
   news paper 3K: https://newspaper.readthedocs.io/en/latest/user_guide/advanced.html
+  
+#### **Construction**
+
+We collect data that seemed reasonable in influencing price such as Closing Price (Adjusted), Volume, VIX, Beta, Sentiment Scores (Factors/Features). 
+
+* Measuring Sentiment in Financial Articles:
+Terms in finance can vary in meaning depending on the context; ex: “decrease” in dividends or “decrease” in overall expenses
+Standard sentiment analysis methods cannot be expected to work well on financial articles, since such articles are intended to be written objectively rather than subjectively
+
+* Computing Sentiment Scores
+we used newspaper3k api to extract articles from links generated from GoogleNews API
+we had to manually tokenized articles without nltk using regular expressions
+LM used to compute various sentiment proportions (positive, negative, uncertainty,etc.)
+results were compiled into a DataFrame object and stored for further use
+
 
 
 #### **Possible New Metrics/Tools to Use:**
@@ -50,10 +66,10 @@ media = Zoom(ZM)
 
 ●Use nltk and tensorflow for neural networks on natural language processing
 ●Graph performance results using multiple layers, ​network types​ and ​learning rates
-● Googlenews API 
-●YahooFinance
+● we used Googlenews API to pull articles
+● we used YahooFinance to pull stock data and articles
 ● we used training a 2D-convolutional neural network
-● we used Loughran-McDonald Master Dictionary to get sentiment 
+● we used Loughran-McDonald Master Dictionary to get sentiments 
 ● We made new class stockscurb to collect, organized data for the assets.
 
 
