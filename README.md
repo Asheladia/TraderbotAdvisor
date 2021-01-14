@@ -19,6 +19,8 @@ Focusing on some of the most volatile industries as below.
 ![Fintech_project_2](Images/xom.png)
 ![Fintech_project_2](Images/BTC.png) 
 ![Fintech_project_2](Images/pfe.png)
+![Fintech_project_2](Images/download.png)
+
 
 
 #### **Indutries:**
