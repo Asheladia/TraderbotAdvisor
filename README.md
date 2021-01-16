@@ -4,13 +4,13 @@
                                            
 
 
-The purpose of this project is to investigate the effect of several variables on the the prediction of the stock prices emphasising ananlysis of coreleation between stock price and the news media. Moreover, prediction of future stock movement using convolutional neural network Model which allows the user to choose a company from the S&P 500 to predict the price movement of a company's stock on the next trading move based on current sentiment (Vader) from Google news articles related to such company.
+The purpose of this project is to investigate the effect of several variables on the prediction of stock prices with emphasis on the analysis of the correlation between stock price and news media. Moreover, prediction of future stock movement using the Convolutional Neural Network model allows the User to choose a company from the S&P 500 and predict the price movement of a company's stock on the next trading move based on current sentiment (Vader) from GoogleNews articles related to such company.
 
 
 ![Fintech_project_2](Images/Robo-Advisors.png)
 
-Looking for executable orders using automated pre-programmed trading instructions accounting for variables such as VIX, Beta, price, sentiment from news media, and volume.
-You've come to the right place, we'll have your back using vix score volitality measurement to decide whether to buy, sell or hold on to your investment in various industries. In this project, we'll be comparing prices of past three to four years of following corporation to build algorethmic robo advisor that can guide you with your investment insequrities. it'll research new media and past stock pattern to come up with the best decision for your stock invesment so you don't have to spand time following market. our bot will be equip for trading attempts to leverage the speed and computational resources of computers relative to human traders. According to Walstreet jornal article, A study in 2019 showed that around 92% of trading in the Forex market was performed by trading algorithms rather than humans.
+Looking for executable orders using automated pre-programmed trading instructions accounting for variables such as VIX, Beta, price, sentiment, and volume?
+You've come to the right place, we'll have your back using vix score volitality measurement to decide whether to buy, sell or hold on to your investment. In this project, we'll be comparing prices of the past three to four years. We will follow corporations and build a algorethmic robo advisor that can guide you with your investments... it'll research new media and past stock patterns to come up with the best decision for your stock invesment so you don't have to spend time following market trends. Our bot will be equiped for trading attempts that leverage the speed and computational resources of computers relative to human traders. According to a Wallstreet journal article, a study in 2019 showed that around 92% of trading in the Forex market was performed by trading algorithms rather than humans.
 
 Focusing on some of the most volatile industries as below. 
 
@@ -39,22 +39,20 @@ media = Zoom(ZM)
   News API: https://newsapi.org/
   Alpha Vantage: https://www.alphavantage.co/
   Yahoo Finance: https://finance.yahoo.com/quote/API/
-  google News :https://newsapi.org/s/google-news-api
-  news paper 3K: https://newspaper.readthedocs.io/en/latest/user_guide/advanced.html
+  Google News :https://newsapi.org/s/google-news-api
+  Newspaper 3K: https://newspaper.readthedocs.io/en/latest/user_guide/advanced.html
   
 #### **Construction**
 
-We collect data that seemed reasonable in influencing price such as Closing Price (Adjusted), Volume, VIX, Beta, Sentiment Scores (Factors/Features). 
+We will collect data that seems reasonable in influencing price such as Closing Price (Adjusted), Volume, VIX, Beta, Sentiment Scores (Factors/Features). 
 
 * Measuring Sentiment in Financial Articles:
-Terms in finance can vary in meaning depending on the context; ex: “decrease” in dividends or “decrease” in overall expenses
-Standard sentiment analysis methods cannot be expected to work well on financial articles, since such articles are intended to be written objectively rather than subjectively
+Terms in finance can vary in meaning depending on context; ex: “decrease” in dividends or “decrease” in overall expenses.
+Standard sentiment analysis methods cannot be expected to work well on financial articles since such articles are intended to be written objectively rather than subjectively.
 
 * Computing Sentiment Scores
-we used newspaper3k api to extract articles from links generated from GoogleNews API
-we had to manually tokenized articles without nltk using regular expressions
-LM used to compute various sentiment proportions (positive, negative, uncertainty,etc.)
-results were compiled into a DataFrame object and stored for further use
+We used Newspaper3k API to extract articles from links generated from GoogleNews API. Manual tokenization was used in articles without nltk using regular expression
+LM to compute various sentiment proportions (positive, negative, uncertainty,etc.) Results were compiled into a DataFrame object and stored for further use.
 
 
 
@@ -94,17 +92,18 @@ results were compiled into a DataFrame object and stored for further use
 
 #### **Questions to be solved by the end of the project:**
 
-● what are your findings of the news media's contribution in the stock market volatility over past three-four years?
+● What are your findings of the news media's contribution in the stock market volatility over past three-four years?
 
-We used several features and academic research to figure out that media plays crucial role in market volatility. We redefine sentiment and multivarient to extrect data from news articles to see the affect on future prices of stocks.
+We used several features and academic research to figure out that media context plays a crucial role in market volatility. We redefined sentiment and used multivariant analysis to extract data from news articles and identify the effect on the future prices of stocks.
  
 
-● Is this a supervised or unsupervised learning task? what are data features and what is the target variable? If unsupervised, what are the data features and what do we hope to find?
- This is supervised learning task since the data is provided with target variable is next day's price . Data features include prameters, prices,VIX, Sentiment, Closingprice and Volume. 
+● Is this a supervised or unsupervised learning task? What are data features and what is the target variable? If unsupervised, what are the data features and what do we hope to find?
+ This is considered to be a supervised learning task since the data is provided with target variables as the next day's price . Data features include parameters, prices,VIX, Sentiment, Closing price and Volume. 
 
 
-● How did the Machine learning played role in it?
-In deep learning, a convolutional neural network is a class of deep neural networks, most commonly applied to analyzing visual imagery. They are also known as shift invariant or space invariant artificial neural networks, based on their shared-weights architecture and translation invariance characteristics. We repurposed it to multivarious signal to get readable result in order to incorporate the information from all features and identifies the feature significant to predict the price for next day. 
+● How did the Machine learning play a role in it?
+In deep learning, a Convolutional Neural Network is a class of deep neural networks, most commonly applied to analyzing visual imagery. There are also shift invariant or space invariant artificial neural networks, based on their shared-weight architecture and translation invariance characteristics. We repurposed the CNN to become a multivarious signal to achieve readable results and produce information from all features and identify the feature significant enough to predict the price for next day. 
 
 ![Fintech_project_2](Images/Stock_Cyborg-Dabbing.png)
 
+ 
