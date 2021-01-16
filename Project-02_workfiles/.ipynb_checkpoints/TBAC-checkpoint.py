@@ -1,3 +1,4 @@
+"""Class contains main tools used for project"""
 # Import libraries and dependencies
 import numpy as np                                                        # for numpy
 import pandas as pd                                                       # for pandas
@@ -14,62 +15,19 @@ from newspaper import Article                                             # for 
 import re                                                                 # for using regular expression
 from nltk.tokenize import sent_tokenize                                   # for tokenizing words
 import yfinance as yf                                                     # for working with yahoo finance api
+import Generic_Parser_Mod                                                 # for using constructed sentiment function
 load_dotenv()                                                             # Load .env enviroment variables
 appkey=os.getenv("ALPHA_KEY")                                             # storing API key for AL
 quandl_key=os.getenv("QUANDL_API_KEY")                                    # Getting the api for quandl requests
 
 
-
-
-#This will be useful if we decide to include additional features
-#Prelim Dictionary : Keeps track of items in API Request
-mk={"Date" : "fiscalDateEnding", "Symbol": "symbol", "Net Income" : "netIncome",'Short Term Debt':'shortTermDebt',
-   'Long Term Debt':'longTermDebt',"Total Liabilities":"totalLiabilities","Total Share Holder Equity":"totalShareholderEquity","Free Cash Flow":"changeInCashAndCashEquivalents","Reported EPS":"reportedEPS","Estimated EPS":"estimatedEPS"}
-
-
 #Ticker mapping
-tick_map={"AAPL":"APPLE","FB":"FACEBOOK","PFE":"PFIZER","BTC":"BITCOIN"}
+tick_map={"AAPL":"APPLE","FB":"FACEBOOK","PFE":"PFIZER","BTC":"BITCOIN","AAL":"AMERICAN AIRLINES","AMZN":"AMAZON","XOM":"EXXON","ZM":"ZOOM"}
 
-#List of Financial Sources
+#List of Financial Sources (For future research, we would like to use a different API and restrict search to financial news articles)
 fin_sources=["reuters",'bloomberg','market watch','cnbc', 'wall stree journal', 'cnn','nbc news', 'the wall street journal','the new york times', 'business insider']
 
-
-
 #"""-----------------           TABC TOOLS !!!!           ---------------"""
-#"""  Ideas of functions from previous project"""
-
-
-#Computing Rolling Beta Averages
- #def BETA(df1,df2,WIN):
- #   """Computes rolling beta averages
- #   df1=first DataFrame
- #   df2=second DataFrame (reference DataFrame)
- #   W=specified window for computations"""
-    
- #   rolling_covariance = df1.rolling(window=WIN).cov(df2) #gets rolling covariance between DataFrames
- #   rolling_variance = df.rolling(window=WIN).var() # gets rolling variance of DataFrame
-  #  rolling_beta = rolling_covariance / rolling_variance #compute rolling beta
-  #  return(rollinb_beta)
-
-#Computing Bollinger Bands
-# def BBands(df,WIN,S):
- #   """ Computes the Bollinger Bands for given data over specific rolling window
- #   df=DataFrame containing data
-  #  WIN=specified window for computations
-  #  S=multiple of standard deviations to use for Bollinger Bands; must specify positive or
-  #  negative"""
-  #  BB = df.rolling(window=WIN).mean() +( S * df.rolling(window=W).std()) #gets Bollinger Bands
-
-    #upper_band.plot(ax=ax)
-    #lower_band.plot(ax=ax)
-  #  return(BB)
-
-
-# Horizontal Analysis
- #def HA(df):
- #   """Performs horizontal analysis on data frame"""
-    #computes percent changes for horizontal analysis
-    #return(df_HA)
 
 #############                                                                          #######################
 ##########################             Assisting Functions                ####################################   
@@ -77,59 +35,45 @@ fin_sources=["reuters",'bloomberg','market watch','cnbc', 'wall stree journal', 
 """Functions that are used in the code to simplify certain tasks"""
 
 
-
-###################################     KEYFIND       ######################################################
-def keyfind(D,string):
-    """Description: Searches through keys of a dictionary and looks for a match, after keys have been converted to lowercase format"""
-    
-    L=[key for key in D.keys()]                                                                                                   # gets list of keys from dictionary
-    I=L[[key.lower()==string for key in L].index(True)]                                                                           # boolean index to locate dictionary key 
-    return(I)                                                                                                                     # returns the corresponding key from the dictionary
-    
-
-###################################       MAPKEY        ###################################################
-def mapkey(string):
-    string=string.lower().replace(" ","")
-    return(string)
-
-
 ####################################     DATA CLEAN FUNCTION       #########################################  
 def data_clean(df):
     """Cleans a data set and removes all None/NA entries"""
-    if( sum(df.isnull().sum())>0 ):               # checks if there are any missing values
-        df.fillna(method='ffill')                 # fills entries using forward fill
-        df.dropna(axis=0,inplace=True)            # gets rid of rows win NA values
+    if( sum(df.isnull().sum())>0 ):                                                  # checks if there are any missing values
+        df.fillna(method='ffill')                                                    # fills entries using forward fill
+        df.dropna(axis=0,inplace=True)                                               # gets rid of rows win NA values
     return(df)                                    # returns the DataFrame
         
     
     
 ####################################     GET VIX FUNCTION       ######################################### 
 def VIX_update():
-    """Function pulls in VIX data from Quandl API"""                                                                              # Description
-    result=quandl.get("CHRIS/CBOE_VX1", authtoken=quandl_key, collapse="daily")                                                   # request pulling VIX data
-    result.to_csv('Quandl_VIX_Data/VIX_DAILY.csv')                                                                                # saves VIX data to csv file
+    """Function pulls in VIX data from Quandl API"""                                 # Description
+    result=quandl.get("CHRIS/CBOE_VX1", authtoken=quandl_key, collapse="daily")      # request pulling VIX data
+    result.to_csv('Quandl_VIX_Data/VIX_DAILY.csv')                                   # saves VIX data to csv file
     print("Data successfully stored.")
     
     
 ####################################     GET SP500 FUNCTION       #########################################
 def sp500_update():
-    """Function pulls in S&P500 data from Quandl API"""                                                                           # Description
-    spx = yf.Ticker("^GSPC")
-    df = spx.history(period="max")
-    df.to_csv("Yahoo_Finance_Data/SP500_DAILY.csv")                                                                               # saves S&P500 data to csv file
+    """Function pulls in S&P500 data from Quandl API"""                              # Description
+    spx = yf.Ticker("^GSPC")                                                         # ticker used to identify S&P500
+    df = spx.history(period="max")                                                   # gets all available data
+    df.to_csv("Yahoo_Finance_Data/SP500_DAILY.csv")                                  # saves S&P500 data to csv file
     
 
 
-####################################       CLEAN TEXT         #########################################
+####################################       PROCESS TEXT         #########################################
 def process_text(text):
     """Function recieves text, cleans it, and returns tokens"""
-    regex = re.compile("[^a-zA-Z ]")                                                                                              # Making our regular expression
-    clean_text = regex.sub('', text)                                                                                              # erasing nonalphabetic characters
-    clean_text = re.findall('[a-zA-Z]+',clean_text)                                                                               # performing tokenization on clean text
-    clean_text= [token.upper() for token in clean_text]                                                                           # makes tokens uppercase for dictionary
-    return clean_text                                                                                                             # returning cleaned tokens
+    regex = re.compile("[^a-zA-Z ]")                                                 # Making our regular expression
+    clean_text = regex.sub(' ', text)  #consider hyphenated words                    # erasing nonalphabetic characters
+    clean_text = re.findall('[a-zA-Z]+',clean_text)                                  # performing tokenization on clean text
+    clean_text= [token.upper() for token in clean_text]                              # makes tokens uppercase for dictionary
+    return clean_text                                                                # returning cleaned tokens
  
 
+    
+    
                
 ####################          DEFINING THE CLASS USED IN FINANCIAL ANALYSIS.       ##########################
 class StockScrub:
@@ -140,10 +84,10 @@ class StockScrub:
     """
 ###############    Initializing the Function
 ###############
-    def __init__(self, ticker=["AAPL"]):                          #defining inputs for class 
+    def __init__(self, ticker=["AAPL"]):                                                    # defining default inputs for class 
                 
 ###############     Checking for Errors
-        if not isinstance(ticker,list):
+        if not isinstance(ticker,list):                                                     # makes sure ticker is in right format
             raise TypeError("ticker must be a list")
 #Setting class attributes
         self.ticker=ticker
@@ -154,15 +98,14 @@ class StockScrub:
 #############################                                               ################################
     def get_data(self):
         """Description: This function is used to collect information from stocks on closing prices and volume"""
-        #stock_list=pd.DataFrame()                                                                                             # initialized DataFrame to hold company info
+        #stock_list=pd.DataFrame()                                                                                             # initialized DataFrame for company info
         for tick in self.ticker:                                                                                               # gets info for each stock ticker
 ###################   Initializing try instance
 #############
 ########
 ####
-            try:                                                                                                               # initializing try instance
-            #When ticker is BTC
-                if tick=="BTC":                                                                                                # when the ticker is Bitcoin
+            try:        # When ticker is BTC                                                                                   # initializing try instance
+                if tick=="BTC":                                                                                                # what to do ticker is Bitcoin
                     query=f"https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol={tick}&market=CNY&apikey={appkey}"
                     response=requests.get(query)                                                                               # making a query to AlphaVantage
                     data=response.json()                                                                                       # converting data in json object
@@ -172,18 +115,15 @@ class StockScrub:
                     D["close"]=[ float(data["Time Series (Digital Currency Daily)"][DATE]["4b. close (USD)"]) for DATE in data["Time Series (Digital Currency Daily)"]]
                     D["volume"]=[ float(data["Time Series (Digital Currency Daily)"][DATE]["5. volume"]) for DATE in data["Time Series (Digital Currency Daily)"]]
                    ################   Manipulating Subsequent DataFrames
-                    D=pd.DataFrame(D)                                                                                          # creating DataFrame and specifying the index
+                    D=pd.DataFrame(D)                                                                                          # creating DataFrame
                     D.set_index("date",inplace=True)                                                                           # setting Date column to be the index
                     D.sort_index(ascending=True,inplace=True)                                                                  # sorting the index
-                    #D=D[self.start:self.end]                                                                                  # refining to selection
                     D=data_clean(D)                                                                                            # cleans the dataframe
                     file_path=f"AlphaVantage_Asset_Data/AV_{tick}_data.csv"                                                    # constructing file path to store data
-                    D.to_csv(file_path)                                                                                        # saving DataFrame to CSV
-            #When ticker is not BTC                 
-                else:
+                    D.to_csv(file_path)                                                                                        # saving DataFrame to CSV               
+                else:    #When ticker is not BTC
                   #Defining API Query
                     query=f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={tick}&outputsize=full&apikey={appkey}"
-                    #query=f"https://www.alphavantage.co/query?"                                                               # base query
                     response=requests.get(query)                                                                               # Making request with parameters
                     data=response.json()                                                                                       # converting data in json object
                     D={}                                                                                                       # initialize dictionary             
@@ -215,7 +155,7 @@ class StockScrub:
                     D["close"]=[ float(data["Time Series (Digital Currency Daily)"][DATE]["4b. close (USD)"]) for DATE in data["Time Series (Digital Currency Daily)"]]
                     D["volume"]=[ float(data["Time Series (Digital Currency Daily)"][DATE]["5. volume"]) for DATE in data["Time Series (Digital Currency Daily)"]]
                     ################   Manipulating Subsequent DataFrames
-                    D=pd.DataFrame(D)                                                                                         # creating DataFrame and specifying the index
+                    D=pd.DataFrame(D)                                                                                         # creating DataFrame
                     D.set_index("date",inplace=True)                                                                          # setting Date column to be the index
                     D.sort_index(ascending=True,inplace=True)                                                                 # sorting the index
                     #D=D[self.start:self.end]                                                                                 # refining to selection
@@ -226,7 +166,6 @@ class StockScrub:
                 else:           
                     #Defining API Query
                     query=f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={tick}&outputsize=full&apikey={appkey}"
-                    #query=f"https://www.alphavantage.co/query?"                                                              # base query
                     response=requests.get(query)                                                                              # Making request with parameters
                     data=response.json()                                                                                      # converting data in json object
                     D={}                                                                                                      # initialize dictionary             
@@ -237,7 +176,7 @@ class StockScrub:
                 D["close"]=[ float(data['Time Series (Daily)'][DATE]['5. adjusted close']) for DATE in data['Time Series (Daily)']]
                 D["volume"]=[ float(data['Time Series (Daily)'][DATE]['6. volume']) for DATE in data['Time Series (Daily)']]                           
 ################   Manipulating Subsequent DataFrames
-            D=pd.DataFrame(D)                                                                                                 # creating DataFrame and specifying the index
+            D=pd.DataFrame(D)                                                                                                 # creating DataFrame
             D.set_index("date",inplace=True)                                                                                  # setting Date column to be the index
             D.sort_index(ascending=True,inplace=True)                                                                         # sorting the index
             #D=D[self.start:self.end]                                                                                         # refining to selection
@@ -249,46 +188,87 @@ class StockScrub:
             
             
             
+            
+            
+            
+            
 ####################################       GET SENTIMENT         #########################################
     def get_sentiment(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d")):
         """Gets daily sentiment using news sources from Google News for the specified time range"""
         start=datetime.strptime(start,"%Y-%m-%d").strftime("%m/%d/%Y")                                                        # puts start time in GoogleNews format
         end=datetime.strptime(end,"%Y-%m-%d").strftime("%m/%d/%Y")                                                            # puts end time in GoogleNews format
         googlenews=GoogleNews(lang='en',start=start,end=end,encode='utf-8')                                                   # creating object for collecting news
-        googlenews.get_news(tick_map[self.ticker[0]])                                                                         # specifying the company
+        googlenews.search(tick_map[self.ticker[0]])                                                                           # specifying the company
         
-        D={}                                                                                                                  # initializing empty dictionary
-        D['date']=[article['datetime'] for article in googlenews.results()]                                                   # storing dates of articles
-        D['site']=[article['site'] for article in googlenews.results()]                                                       # storing sites of articles
-        D['content']=[article['title']+" "+article['desc'] for article in googlenews.results()]                               # storing content of articles
-        D=pd.DataFrame(D)
-        D.set_index("date",inplace=True)                                                                                      # setting date column to be the index
-        D.sort_index(ascending=True,inplace=True)                                                                             # sorting the dates
-        D['site']=D['site'].apply(lambda title: title.lower())                                                                # makes titles lowercase
-        #D=D[[D.site[i] in fin_sources for i in range(len(D.site))]]                                                          # filters out unwanted sources
         
-        # Making time format %Y-%m-%d
-        new_time_format=list(pd.Series(D.index).apply(lambda DATE :DATE.strftime("%Y-%m-%d")).values)                         # string form of new time format        
+        # Getting Google Results
+        for i in range(1,50):
+            googlenews.getpage(i)                                                                                             # loops through google pages
+            result=googlenews.result()                                                                                        # stores results
+            df=pd.DataFrame(result)                                                                                           # appends results to DataFrame
+        df.drop_duplicates(['link'],keep='first',inplace=True)                                                                # removes duplicate articles via links
+        
+        
+        # Collecting Text From Articles
+        L=[]                                                                                                                  # initializing empty list
+        for ind in df.index:
+            try:                                                                                                              # "try" for forbidden websites
+                D={}                                                                                                          # initializing the dictionary
+                article = Article(df['link'][ind])                                                                            # extracting information from articles
+                article.download()
+                article.parse()
+                article.nlp()
+                D['Date']=df['datetime'][ind]                                                                                 # storing information from articles
+                D['Media']=df['media'][ind]
+                D['Title']=article.title
+                D['Article']=article.text
+                D['Summary']=article.summary
+                L.append(D)                                                                                                   # appending results to list
+            except:
+                pass
+        news_df=pd.DataFrame(L)                                                                                               # make DataFrame from list
+        #Preliminary Cleaning
+        news_df1=news_df.dropna(axis=0)                                                                                       # dropping old "date" column
+        news_df2=news_df1[news_df1['Media']!=""].set_index('Date').sort_index(ascending=True)                                 # remove articles with no media source
+        news_df2=news_df2[news_df2['Article'].values!=""]                                                                     # remove articles with no content
+        # Making time format %Y-%m-%d and Additional Cleaning
+        new_time_format=list(pd.Series(news_df2.index).apply(lambda DATE :DATE.strftime("%Y-%m-%d")).values)                  # string form of new time format   
         new_time_format=[datetime.strptime(DATE,"%Y-%m-%d") for DATE in new_time_format]                                      # datetime form of new time format
-        D.index=new_time_format                                                                                               # apply new time format
+        news_df2.index=new_time_format                                                                                        # apply new time format
+        news_df2.drop(columns=['Summary','Title'],inplace=True)                                                               # dropping columns
+        news_df2=Generic_Parser_Mod.LM_sentiment(news_df2)                                                                    # DataFrame of sentiment scores
         
-        #collapsing information in duplicate entries
-        duplicate_index=D.index[D.index.duplicated()]                                                                         # identify duplicate time entries
+        
+        # Handling of Duplicated Entries
+        duplicate_index=news_df2.index[news_df2.index.duplicated()]                                                           # identify duplicate time entries
         collapsed_dates=list(duplicate_index.unique())                                                                        # collapsing duplicate dates
-        sites=[", ".join(list(D.loc[collapsed_dates[i]].site.unique())) for i in range(len(collapsed_dates))]                 # collapsing sites for duplicate dates
-        contents=[", ".join(list(D.loc[collapsed_dates[i]].content)) for i in range(len(collapsed_dates))]                    # collapsing titles for duplicate dates
-        Dict={'date':collapsed_dates,'site':sites,'content':contents}                                                         # make dictionary of collapsed info
-        Dict=pd.DataFrame(Dict).set_index("date")                                                                             # convert dictionary to DataFrame
+        news_df3=[news_df2.loc[collapsed_dates[i]].median() for i in range(len(collapsed_dates))]                             # collapsing info in duplicate entries
+        news_df3=pd.DataFrame(news_df3)                                                                                       # DataFrame of collapsed info
+        news_df3.index=collapsed_dates                                                                                        # new collapsed info
+        
         
         #Making new DataFrame without Duplicates
-        D_new=D.loc[[D.index[i] not in duplicate_index for i in range(len(D.index))]].append(Dict,sort=False)                 # append DataFrame to non-duplicate DataFrame
-        D_new.sort_index(ascending=True,inplace=True)                                                                         # sorting index of new DataFrame
-        D_new['content']=D_new['content'].apply(lambda text: process_text(text))                                              # process text for sentiment
-        return D_new                                                                                                          # return newly refined DataFrame
+        news=news_df2.loc[[news_df2.index[i] not in duplicate_index for i in range(len(news_df2.index))]].append(news_df3,sort=False)
+        
+        
+        # Post-Cleaning, due to unstable nature of API
+        news=news.loc[start:end]                                                                                              # only articles from selected period
+        news.sort_index(ascending=True,inplace=True)                                                                          # order by date
+        news.to_csv(f"Sentiment_Data/{self.ticker[0]}_scores.csv",index='date')                                         # storing the sentiment data
+        return news                                                                                                           # return sentiment scores
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 ####################################     DATA COMPILE       #########################################                
-    def data_compile(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d"),beta_period=15):
+    def data_compile(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d"),beta_period=20):
         """Takes a given ticker symbol and combines data from AlphaVantage, Quandl and sentiment analysis"""
         start=datetime.strptime(start,"%Y-%m-%d")                                                                             # converting start time to datetime
         end=datetime.strptime(end,"%Y-%m-%d")                                                                                 # converting end time to datetime
@@ -298,73 +278,36 @@ class StockScrub:
         VIX_df.index.name='date'                                                                                              # adjusting index column name
         VIX_df.columns=['VIX']                                                                                                # adjusting DataFrame column name
         beta_df=self.get_beta(start=start,end=end,period=beta_period)                                                         # collecting average beta values
+        
+        #Getting the Sentiment DataFrame
+        senti_df=pd.read_csv(f"Sentiment_Data/{self.ticker[0]}_scores.csv",index_col=[0],parse_dates=True,infer_datetime_format=True)
+        senti_df.index.name='date'                                                                                            # naming the index
+        #Combining all the DataFrames        
+        senti_df=senti_df[start:end]                                                                                          # slice senti_df
         combined_df=pd.concat([AV_df.loc[start:end],VIX_df.loc[start:end],beta_df],axis=1,join="inner")                       # joining DataFrames on common index
-        combined_df=data_clean(combined_df)                                                                                   # combining all DataFrames
-        return combined_df     
+        combined_df=data_clean(combined_df)                                                                                   # combining all DataFrames 
+        combined_df=combined_df.join(senti_df,how="left").fillna(value=0)                                                     # join DataFrames; fill  NAs with zeros
+        if combined_df.empty:                                                                                                    # when we obtain an empty DataFrame
+            combined_df=pd.concat([AV_df.loc[start:end],VIX_df.loc[start:end],beta_df,senti_df],axis=1,join="inner") 
+        return combined_df                                                                                     
   
+
+
+
+
 
  ####################################       GET BETA         #########################################  
     def get_beta(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d"),period=15):
         """Computes P-Day rolling beta of given stock data, where period=P. There will be NAs but will remove them from collective DataFrame"""
         file_path=f"AlphaVantage_Asset_Data/AV_{self.ticker[0]}_data.csv"                                                     # Defining the file path
-        stock_df=pd.read_csv(file_path,index_col='date',parse_dates=True,infer_datetime_format=True)                             # reading data from file path
-        stock_df=stock_df.loc[start:end]                                                                                                # slicing stock data
-        sp500_df=pd.read_csv("Yahoo_Finance_Data/SP500_DAILY.csv",index_col='Date',parse_dates=True,infer_datetime_format=True,usecols=["Date","Close"]) # getting S&P500 data
-        sp500_df=data_clean(sp500_df.loc[start:end])                                                                                  # slicing S&P500 DataFrame
-        daily_returns_stock_df=stock_df.pct_change()                                                                                  # computing daily returns for stock
-        daily_returns_sp500_df=sp500_df.pct_change()                                                                                  # computing daily returns for S&P500
-        rolling_covariance = daily_returns_stock_df['close'].rolling(window=period).cov(daily_returns_sp500_df)                                # computing rolling covariance w/ S&P500
-        rolling_variance = daily_returns_sp500_df.rolling(window=period).var()                                                        # computing variance of S&P500
-        rolling_beta = rolling_covariance / rolling_variance                                                                          # Computing beta-average values
-        rolling_beta.columns=['beta']                                                                                                 # changing column name
-        return rolling_beta                                                                                                           # returning rolling_beta DataFrame
-
-
-
-
-
-
-
-
-
-
- ####################################     GET INDICATORS       ######################################### 
-    def get_indicators(self,start='2019-03-29',end=datetime.now().strftime("%Y-%m-%d")):
-        """Gets indicator data for specified stock/crypto symbol"""
-        start=datetime.strptime(start,"%Y-%m-%d")                                                                             # converting start time to datetime
-        end=datetime.strptime(end,"%Y-%m-%d")                                                                                 # converting end time to datetime
-        file_path=f"AlphaVantage_Asset_Data/AV_{self.ticker[0]}_data.csv"                                                     # Defining the file path
-        AV_df=pd.read_csv(file_path,index_col='date',parse_dates=True,infer_datetime_format=True,usecols=['date','close'])    # reading data from file paths
-        AV_df=AV_df.loc[start:end]                                                                                            #slices the DataFrame
-        
-        try:
-            RSI_query=f"https://www.alphavantage.co/query?function=RSI&symbol={self.ticker[0]}&interval=daily&time_period=10&series_type=close&apikey={appkey}"
-            response=requests.get(RSI_query)                                                                                  # making a query to AlphaVantage
-            data=response.json()                                                                                              # converting data in json object
-        except:
-            print('KeyError. Trying again in 60 seconds...\n\n',end='\r')
-            time.sleep(60)                                                                                                    # sleep time 60s
-            print('Resuming Execution...\n\n',end='\r')
-            RSI_query=f"https://www.alphavantage.co/query?function=RSI&symbol={self.ticker[0]}&interval=daily&time_period=10&series_type=close&apikey={appkey}"
-            response=requests.get(RSI_query)                                                                                  # making a query to AlphaVantage
-            data=response.json()                                                                                              # converting data in json object
-  ################ Continuing data extraction          
-        D={}                                                                                                                  # initializing dictionary for DataFrame
-        D["date"]=[datetime.strptime(DATE,"%Y-%m-%d") for DATE in data["Technical Analysis: RSI"].keys()]                     # storing the dates as keys
-        D["RSI"]=[ float(data["Technical Analysis: RSI"][DATE]["RSI"]) for DATE in data["Technical Analysis: RSI"]]           # storing the RSI values
-        ################   Manipulating Subsequent DataFrames
-        D=pd.DataFrame(D)                                                                                                     # creating DataFrame and specifying the index
-        D.set_index("date",inplace=True)                                                                                      # setting Date column to be the index
-        D.sort_index(ascending=True,inplace=True)                                                                             # sorting the index
-        D=D[start:end]                                                                                                        # refining to selection
-        combined_df=pd.concat([AV_df,D],axis=1,join="inner")                                                                  # joining DataFrames on common index
-        combined_df=data_clean(combined_df)                                                                                   # cleans the dataframe
-        return combined_df
-        
-            
-        
-        
-        
-        #https://www.alphavantage.co/query?function=RSI&symbol={self.ticker[0]}&interval=weekly&time_period=10&series_type=open&apikey={appkey}
-        
-        
+        stock_df=pd.read_csv(file_path,index_col='date',parse_dates=True,infer_datetime_format=True)                          # reading data from file path
+        stock_df=stock_df.loc[start:end]                                                                                      # slicing stock data
+        sp500_df=pd.read_csv("Yahoo_Finance_Data/SP500_DAILY.csv",index_col='Date',parse_dates=True,infer_datetime_format=True,usecols=["Date","Close"]) # SP500 data
+        sp500_df=data_clean(sp500_df.loc[start:end])                                                                          # slicing S&P500 DataFrame
+        daily_returns_stock_df=stock_df.pct_change()                                                                          # computing daily returns for stock
+        daily_returns_sp500_df=sp500_df.pct_change()                                                                          # computing daily returns for S&P500
+        rolling_covariance = daily_returns_stock_df['close'].rolling(window=period).cov(daily_returns_sp500_df)               # computing rolling covariance w/ S&P500
+        rolling_variance = daily_returns_sp500_df.rolling(window=period).var()                                                # computing variance of S&P500
+        rolling_beta = rolling_covariance / rolling_variance                                                                  # Computing beta-average values
+        rolling_beta.columns=['beta']                                                                                         # changing column name
+        return rolling_beta                                                                                                   # returning rolling_beta DataFrame
