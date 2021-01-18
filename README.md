@@ -1,6 +1,6 @@
 # **TraderbotAdviser**
 
-### **Contributors : Alpa Sheladia, Brian Withrow, Lee R. Redfearn, Mischelle Massey, Nathan Bratz**
+### **Contributors : Alpa Sheladia, Brian Withrow,Mischelle Massey, Nathan Bratz, Lee R. Redfearn**
                                            
 
 
